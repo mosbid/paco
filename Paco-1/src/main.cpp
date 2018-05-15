@@ -6,7 +6,7 @@
 #include <LiquidCrystal_I2C.h>
 
 //Config ESP
-const char wifiName = {'E'};
+//const char wifiName = {'E'};
 SoftwareSerial wifi(13, 12);
 char responseBuffer[50];
 ///////////////
@@ -97,52 +97,19 @@ void setup() {
   Serial.println(mensaje);*/
   //Conexion al wifi
 
-  /*for(int i = 0; i<10;i++){
-    wifi.println('AT+CWJAP="S8 Manu", "27121996"');
-    long int time = millis();
-    int ndx = 0;
-   char rc = (char)0;
-   memset(responseBuffer, 0, sizeof(responseBuffer));
-    while(millis() - time < 10000)
-       {
-
-         while(wifi.available() > 0)
-         {
-
-           rc = wifi.read();
-           responseBuffer[ndx] = rc;
-           ndx++;
-
-
-           /*Serial.println(wifi.read());
-           if(wifi.find("WIFI CONNECTED/r/nOK")){
-             Serial.println("Conexion wifi OK");
-             break;
-           }else{
-             Serial.println("Conexion wifi bad");
-             delay(200);
-             if(i == 9){
-               Serial.println("IMPOSSIBLE TO CONNECT");
-             }
-           }
-          Serial.println(responseBuffer);
-
-         }
-
-       }*/
 
 
     //for(int j = 0; j<6000;j++);
-    for(int i = 0; i<10;i++){
+    for(int i = 0; i<4;i++){
       wifi.println('AT+CWJAP="S8 Manu", "27121996"');
-      delay(2000);
+      delay(1500);
       if(wifi.find("WIFI GOT IP")){
         Serial.println("Conexion wifi OK");
         break;
       }else{
         Serial.println("Conexion wifi bad");
         delay(200);
-        if(i == 9){
+        if(i == 3){
           Serial.println("IMPOSSIBLE TO CONNECT");
         }
       }
@@ -172,21 +139,46 @@ void setup() {
     }
   }*/
 
+  for(int i = 0; i<10;i++){
+    wifi.println("AT+CIPSTART=\"TCP\",\"192.168.43.170\",8083");
+    delay(1000);
+    wifi.println('AT+CIPSTART=?');
+    if(wifi.find("OK")){
+        Serial.println("TCP OK");
+        break;
+      }else{
+        Serial.println("TCP bad");
+        delay(200);
+      }
+  }
 
-  wifi.println('AT+CIPSTART="TCP","192.168.43.170",8083');
-  delay(2000);
   //
-  /*data = 'PUT /api/door HTTP/1.1\r\n\r\n {"id":5,"doorState":0,"doorAddress":"Arduino","doorPass":"9999","doorAdmin":"AAAA"}';
+/*  data = 'PUT /api/door HTTP/1.1\r\n\r\n {"id":5,"doorState":0,"doorAddress":"Arduino","doorPass":"9999","doorAdmin":"AAAA"}';
   datalength = data.length();
   peticion = 'AT+CIPSEND='+ datalength;*/
 
   data = 'GET /api/door/1 HTTP/1.1\r\n\r\n';
   datalength = data.length();
+  //cips= "AT+CIPSEND=";
   peticion = 'AT+CIPSEND='+ datalength;
+  //strcat (peticion,"strings ");
 
-  wifi.println(peticion);
-  delay(2000);
-  wifi.println(data);
+  for(i=0;i<5;i++){
+    wifi.println(peticion);
+    delay(500);
+    //wifi.println("AT+CIPSEND");
+    wifi.println(data);
+    delay(500);
+    if(wifi.find("SEND OK")){
+      Serial.println("SEND OK");
+      break;
+    }else{
+      Serial.println("SEND BAD");
+    }
+  }
+
+  delay(1000);
+
 
   Serial.println(peticion);
   Serial.println(data);
